@@ -2,6 +2,7 @@ module.exports = function(require, register, walkPath, splitIdentifier, findIden
 {
     var requiresKey = "requires";
     var bundleKey = "bundle";
+    var versionKey = "version";
     return function(key, cb)
     {
         if(require == null) {
@@ -44,7 +45,7 @@ module.exports = function(require, register, walkPath, splitIdentifier, findIden
                             }
                             // inject something here?
                             // "requires": [{"hyper": @overwrite:./overwrite.js}]
-                            const requires = definition[requiresKey] || [];
+                            var requires = definition[requiresKey] || [];
                             loaded = Promise.all(
                                 requires.map(
                                     function(item)
@@ -70,7 +71,8 @@ module.exports = function(require, register, walkPath, splitIdentifier, findIden
                                         }
                                     );
                                     return require(
-                                        identifier.file
+                                        identifier.file,
+                                        definition[versionKey]
                                     )
                                 }
                             );

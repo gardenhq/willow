@@ -1,6 +1,6 @@
 module.exports = function()
 {
-    var root = "@gardenhq/willow";
+    var root = __dirname + "/..";
     return {
         "willow.filter.service": {
             "filter": root + "/filters/service"

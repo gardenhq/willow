@@ -1,6 +1,9 @@
 # willow
 
-A flexible javascript dependency injection container builder.
+A flexible javascript dependency injection container/builder.
+
+Currently usage is part of o.
+
 
 ## Installation
 

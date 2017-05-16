@@ -1,7 +1,8 @@
-module.exports = function(require, key)
+module.exports = function($require, key)
 {
     key = key || "imports";
-    const resourceKey = "resource";
+    var resourceKey = "resource";
+    var versionKey = "version";
     return function importer(container, definition, id, definitions)
     {
         if(id == key) {
@@ -13,13 +14,13 @@ module.exports = function(require, key)
                         if(typeof path != "string") {
                             path = item[resourceKey]
                         }
-                        return require(path)
+                        return $require(path, item[versionKey]);
                     }
                 )
             ).then(
                 function(imports)
                 {
-                    const promises = imports.map(
+                    var promises = imports.map(
                         function(config)
                         {
                             // is callable?

@@ -9,21 +9,22 @@ module.exports = function(container)
     var System_registerDynamic = container.get(root + ".system.registerDynamic");
     return Promise.all(
         [
-            "/filters/util/loader",
-            "/filters/util/walkPath",
-            "/filters/util/resolveIdentifier",
-            "/filters/util/traverse",
-            "/filters/util/resolver",
-            "/filters/util/splitIdentifier",
-            "/filters/util/findIdentifier",
+            "/util/loader.js",
+            "/util/walkPath.js",
+            "/util/resolveIdentifier.js",
+            "/util/traverse.js",
+            "/util/resolver.js",
+            "/util/splitIdentifier.js",
+            "/util/findIdentifier.js",
+            "/util/weblikeJavascriptlessImport.js",
 
-            "/filters/imports",
-            "/filters/callable",
-            "/filters/filter"
+            "/imports.js",
+            "/callable.js",
+            "/filter.js"
         ].map(
             function(item)
             {
-                return "@gardenhq/" + root + item;
+                return __dirname + item;
             }
         ).map(function(item){ return System_import(item) })
     ).then(
@@ -37,13 +38,15 @@ module.exports = function(container)
             var createResolver = modules[4];
             var splitIdentifier = modules[5](identifierSplitter);
             var findIdentifier = modules[6](servicePrefix);
+            var weblikeJavascriptlessImport = modules[7](System_import);
 
-            var importer = modules[7];
-            var callabled = modules[8];
-            var filtered = modules[9];
+            var importer = modules[8];
+            var callabled = modules[9];
+            var filtered = modules[10];
+
 
             var loadAndEval = loader(
-                System_import,
+                weblikeJavascriptlessImport,
                 System_registerDynamic,
                 walkPath,
                 splitIdentifier,
@@ -58,7 +61,7 @@ module.exports = function(container)
             var resolver = createResolver(resolveIdentifier, traverse);
             var resolveArguments = resolver("arguments");
 
-            var importable = importer(System_import);
+            var importable = importer(weblikeJavascriptlessImport);
             var callable = callabled(loadAndEval, resolveArguments);
             var filterable = filtered(loadAndEval, resolveArguments);
 

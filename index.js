@@ -1,13 +1,15 @@
 module.exports = function(promisedRequire, register, config, containerlike)
 {
-    const name = "@gardenhq/willow";
+    var name = __dirname;
     // this should be in test
-    const id = "willow.";
-    config = name + "/conf/javascript";
+    var id = "willow.";
+    config = name + "/conf/javascript.js";
 
     if(promisedRequire == null) {
         //probably testing
-        var promised = require("./util/promised");
+        var $require = require;
+        var promised = $require("./util/promised");
+        // TODO: This can go for now?
         promisedRequire = promised(
             function(path)
             {
@@ -15,13 +17,13 @@ module.exports = function(promisedRequire, register, config, containerlike)
             }
         );
     }
-    const modules = [
-        "Builder",
-        "filters/",
-        "conf/"
+    var modules = [
+        "Builder.js",
+        "filters/index.js",
+        "conf/index.js"
     ];
     if(containerlike == null) {
-        modules.push("Container");
+        modules.push("Container.js");
     }
     return Promise.all(
         modules.map(
@@ -33,8 +35,8 @@ module.exports = function(promisedRequire, register, config, containerlike)
     ).then(
         function(modules)
         {
-            const container = containerlike == null ? new modules[3]() : containerlike;
-            const builder = new modules[0](
+            var container = containerlike == null ? new modules[3]() : containerlike;
+            var builder = new modules[0](
                 container,
                 promisedRequire // for importing
             );
@@ -108,9 +110,5 @@ module.exports = function(promisedRequire, register, config, containerlike)
                 }
             );
         }
-    
     );
-
-
-
 };

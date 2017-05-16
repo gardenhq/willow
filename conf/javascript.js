@@ -1,6 +1,6 @@
 module.exports = function()
 {
-    var root = "@gardenhq/willow";
+    var root = __dirname + "/.."
     var id = "willow";
     return {
         "willow.filter.class": {
