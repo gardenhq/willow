@@ -4,7 +4,6 @@ module.exports = function(promisedRequire, register, config, containerlike)
     // this should be in test
     var id = "willow.";
     config = name + "/conf/javascript.js";
-
     if(promisedRequire == null) {
         //probably testing
         var $require = require;

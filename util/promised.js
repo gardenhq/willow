@@ -1,9 +1,9 @@
 module.exports = function(callable)
 {
-    return function()
+    return function(path)
     {
         try {
-            var module = callable.apply(null, arguments);
+            var module = callable(path.split("#")[0]);
             return Promise.resolve(module);
         } catch(e) {
             return Promise.reject(e);

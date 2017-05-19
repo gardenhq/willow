@@ -14,7 +14,10 @@ module.exports = function($require, key)
                         if(typeof path != "string") {
                             path = item[resourceKey]
                         }
-                        return $require(path, item[versionKey]);
+                        if(item[versionKey] != null) {
+                            path += "#@" + item[versionKey];
+                        }
+                        return $require(path);
                     }
                 )
             ).then(
@@ -35,10 +38,14 @@ module.exports = function($require, key)
                                 {
                                     if(id != key) {
                                         if(typeof definitions[id] === "undefined" || definitions[id].constructor == Object) {
-                                            definitions[id] = Object.assign(
-                                                config[id],
-                                                definitions[id]
-                                            );
+                                            if(config[id] == null || config[id].constructor !== Object) {
+                                                definitions[id] = config[id];
+                                            } else {
+                                                definitions[id] = Object.assign(
+                                                    config[id],
+                                                    definitions[id]
+                                                );
+                                            }
                                         }   
                                     }
                                 }

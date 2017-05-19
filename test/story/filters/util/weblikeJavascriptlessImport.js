@@ -35,7 +35,8 @@ describe(
                         "../": "../index.js",
                         "./": "./index.js",
                         "/": "/index.js",
-                        "js/": "js/index.js" 
+                        "js/": "js/index.js",
+                        "js/#hash": "js/index.js#hash" 
                     } 
                 );
             }
@@ -67,6 +68,28 @@ describe(
                         "@something/index": "@something/index",
                         "something/index": "something/index.js",
                         "@something/somewhere/js/index": "@something/somewhere/js/index.js"
+                    } 
+                );
+            }
+        );
+        it(
+            "deals with hashes properly",
+            function()
+            {
+                testFixtures(
+                    {
+                        "/something/#hash": "/something/index.js#hash",
+                        "something/#hash": "something/index.js#hash",
+                        "../#hash": "../index.js#hash",
+                        "./#hash": "./index.js#hash",
+                        "/#hash": "/index.js#hash",
+                        "js/#hash": "js/index.js#hash",
+                        "js/#hash": "js/index.js#hash" ,
+                        "something#hash": "something#hash",
+                        "@something/index#hash": "@something/index#hash",
+                        "something/index#hash": "something/index.js#hash",
+                        "@something/somewhere/js/index#hash": "@something/somewhere/js/index.js#hash",
+                        "../anything#hash": "../anything.js#hash"
                     } 
                 );
             }

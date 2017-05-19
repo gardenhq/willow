@@ -3,6 +3,9 @@ module.exports = function($require)
     return function(path)
     {
         // ends in a slash, just force index.js
+        var temp = path.split("#");
+        path = temp[0];
+        var hash = temp[1] == null ? "" : "#" + temp[1];
         if(path[path.length - 1] === "/") {
             path = path + "index.js";
         } else {
@@ -20,6 +23,8 @@ module.exports = function($require)
                 }
             }
         }
-        return $require.apply(null, arguments);
+        var args = [].slice.call(arguments)
+        args[0] = path + hash;
+        return $require.apply(null, args);
     }
 }

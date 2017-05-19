@@ -3,6 +3,7 @@ module.exports = function(require, register, walkPath, splitIdentifier, findIden
     var requiresKey = "requires";
     var bundleKey = "bundle";
     var versionKey = "version";
+    var ignoreRequireKey = "ignore-require"; // getting too much split out, "headers" again
     return function(key, cb)
     {
         if(require == null) {
@@ -40,8 +41,18 @@ module.exports = function(require, register, walkPath, splitIdentifier, findIden
                                 if(temp[1]) {
                                     headers["Content-Type"] = temp[1];
                                 }
+                                // TODO: need addHeaders(path, {})
                                 identifier.file = temp[0] + "#" + JSON.stringify({"Cache-Control": "private"});
 
+                            }
+                            if(definition[ignoreRequireKey] === true) {
+                                var temp = identifier.file.split("#");
+                                // TODO: need addHeaders(path, {})
+                                identifier.file = temp[0] + "#" + JSON.stringify({"Content-Type": "application/javascript+bundle"});
+
+                            }
+                            if(definition[versionKey] != null) {
+                                identifier.file += "#@" + definition[versionKey];
                             }
                             // inject something here?
                             // "requires": [{"hyper": @overwrite:./overwrite.js}]
@@ -71,8 +82,7 @@ module.exports = function(require, register, walkPath, splitIdentifier, findIden
                                         }
                                     );
                                     return require(
-                                        identifier.file,
-                                        definition[versionKey]
+                                        identifier.file
                                     )
                                 }
                             );

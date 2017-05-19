@@ -126,26 +126,27 @@ function substiteVariablesInternal(str, position, result, options, cb) {
     }
 module.exports = function(walkPath, servicePrefix, tagPrefix, splitIdentifier)
 {
-    const varPrefix = "$";
+    var varPrefix = "$";
+    var argPrefix = "--";
     return function(item, container)
     {
         if(typeof item !== "string") {
             return item;
         }
         if(item.indexOf(servicePrefix) === 0) {
-            const service = container.get(item.substr(servicePrefix.length));
-            const identifier = splitIdentifier(item);
+            var service = container.get(item.substr(servicePrefix.length));
+            var identifier = splitIdentifier(item);
             if(identifier.path) {
                 return walkPath(identifier.path, service);
             }
             return service;
         } else if(item.indexOf(tagPrefix) === 0) {
-            const tagged = container.getTagged(item.substr(tagPrefix.length));
+            var tagged = container.getTagged(item.substr(tagPrefix.length));
             if(tagged.length === 0) {
                 return Promise.resolve([]);
             }
-            const promises = [];
-            const keys = Object.keys(
+            var promises = [];
+            var keys = Object.keys(
                 tagged
             );
             keys.forEach(
@@ -160,7 +161,7 @@ module.exports = function(walkPath, servicePrefix, tagPrefix, splitIdentifier)
                 function(services)
                 {
                     var obj = {};
-                    // do this better, maybe after with Array.toArray()
+                    // TODO: do this better, maybe after with Array.toArray()
                     if(keys[0] == 0) {
                         obj = [];
                     }
@@ -175,6 +176,25 @@ module.exports = function(walkPath, servicePrefix, tagPrefix, splitIdentifier)
             );
         } else if(item.indexOf(varPrefix) === 0) {
             return substiteVariablesInternal(item, "", 0, process);
+        } else if (item.indexOf(argPrefix) === 0) {
+            var value;
+            // TODO: This should only be done once not everytime I encounter a --
+            // TODO: equivalent of args for the web are request vars, or hash, probably hash ?
+            process.argv.forEach(
+                function(arg, i, arr)
+                {
+                    var temp = arg.split("=");
+                    if(temp[0] === item) {
+                        var next = arr[i + 1] || "-";
+                        if(temp.length === 1 && next.indexOf("-") !== 0) {
+                            value = next;
+                        } else {
+                            value = temp[1] || true;
+                        }
+                    }
+                }
+            );
+            return value;
         } else {
             return item;
         }
