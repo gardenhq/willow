@@ -33,54 +33,67 @@ module.exports = function(require, register, walkPath, splitIdentifier, findIden
                                 loaded = Promise.resolve(loaded);   
                             }
                         } else {
+                            var headers = {};
+                            var temp = identifier.file.split("#");
+                            if(temp[1]) {
+                                headers["Content-Type"] = temp[1];
+                            }
                             if(definition[bundleKey] === false) {
-                                var temp = identifier.file.split("#");
-                                var headers = {
-                                    "Cache-Control": "private"
-                                };
-                                if(temp[1]) {
-                                    headers["Content-Type"] = temp[1];
-                                }
-                                // TODO: need addHeaders(path, {})
-                                identifier.file = temp[0] + "#" + JSON.stringify({"Cache-Control": "private"});
-
+                                headers['Cache-Control'] = "private";
                             }
                             if(definition[ignoreRequireKey] === true) {
-                                var temp = identifier.file.split("#");
-                                // TODO: need addHeaders(path, {})
-                                identifier.file = temp[0] + "#" + JSON.stringify({"Content-Type": "application/javascript+bundle"});
-
+                                headers["Content-Type"] = "application/javascript+bundle";
                             }
                             if(definition[versionKey] != null) {
-                                identifier.file += "#@" + definition[versionKey];
+                                headers["X-Content-Version"] = definition[versionKey];
                             }
-                            // inject something here?
-                            // "requires": [{"hyper": @overwrite:./overwrite.js}]
+                            if(Object.keys(headers).length > 0) {
+                                identifier.file = temp[0] + "#" + JSON.stringify(headers);
+                            }
                             var requires = definition[requiresKey] || [];
-                            loaded = Promise.all(
+                            // TODO: deprecate this
+                            if(Array.isArray(requires)) {
+                                var obj = {};
                                 requires.map(
+                                    function()
+                                    {
+                                        obj[item] = "@require." + item;
+                                    }
+                                );
+                                requires = obj;
+                            }
+                            var keys = Object.keys(requires);
+                            loaded = Promise.all(
+                                keys.map(
                                     function(item)
                                     {
-                                        return container.get("require." + item)
+                                        // TODO: check for other things not just @service.id
+                                        return container.get(requires[item].substr(1));
                                     }
                                 )
                             ).then(
                                 function(modules)
                                 {
-                                    requires.forEach(
+                                    keys.forEach(
                                         function(item, i, arr)
                                         {
                                             register(
                                                 item,
                                                 [],
                                                 true,
-                                                function(module)
+                                                function(module, exports, require, __filename, __dirname)
                                                 {
-                                                    return modules[i]
+                                                    module.exports = modules[i];
                                                 }
                                             );
                                         }
                                     );
+                                    return modules;
+
+                                }
+                            ).then(
+                                function(modules)
+                                {
                                     return require(
                                         identifier.file
                                     )
