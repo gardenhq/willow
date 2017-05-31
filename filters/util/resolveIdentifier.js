@@ -134,21 +134,26 @@ module.exports = function(walkPath, servicePrefix, tagPrefix, splitIdentifier)
             return item;
         }
         if(item.indexOf(servicePrefix) === 0) {
-            var service = container.get(item.substr(servicePrefix.length));
             var identifier = splitIdentifier(item);
+            var service = container.get(identifier.file.substr(servicePrefix.length));
             if(identifier.path) {
-                return walkPath(identifier.path, service);
+                return service.then(
+                    function(service)
+                    {
+                        return walkPath(identifier.path, service);
+                    }
+                );
             }
             return service;
         } else if(item.indexOf(tagPrefix) === 0) {
             var tagged = container.getTagged(item.substr(tagPrefix.length));
-            if(tagged.length === 0) {
-                return Promise.resolve([]);
-            }
             var promises = [];
             var keys = Object.keys(
                 tagged
             );
+            if(keys.length === 0) {
+                return Promise.resolve(promises);
+            }
             keys.forEach(
                 function(item, i, arr)
                 {

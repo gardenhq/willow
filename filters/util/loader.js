@@ -1,4 +1,4 @@
-module.exports = function(require, register, walkPath, splitIdentifier, findIdentifier)
+module.exports = function(require, resolvePath, register, walkPath, splitIdentifier, findIdentifier)
 {
     var requiresKey = "requires";
     var bundleKey = "bundle";
@@ -78,7 +78,7 @@ module.exports = function(require, register, walkPath, splitIdentifier, findIden
                                         function(item, i, arr)
                                         {
                                             register(
-                                                item,
+                                                resolvePath(item, identifier.file),
                                                 [],
                                                 true,
                                                 function(module, exports, require, __filename, __dirname)

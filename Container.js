@@ -156,9 +156,6 @@ Object.assign(
                 function(item, i, arr)
                 {
                     var service = this.get(item);
-                    // this needs woking in somemore
-                    // so instead of using 0 it should look for the tagname
-                    // equalling what I'm looking for
                     var key = tags[item].reduce(
                         function(prev, item, i, arr)
                         {
@@ -170,14 +167,6 @@ Object.assign(
                         i
                     )
                     services[key] = service;
-                    // if(tags[item][0].key != null) {
-                    //  services[tags[item][0].key] = service;
-                    // } else if(tags[item][1] != null && tags[item][1].key != null) {
-                    //  services[tags[item][1].key] = service;
-
-                    // } else {
-                    //  services[i] = service;
-                    // }
                 },
                 this
             );

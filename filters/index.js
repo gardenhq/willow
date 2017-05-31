@@ -6,7 +6,9 @@ module.exports = function(container)
     var identifierSplitter = ":";
 
     var System_import = container.get(root + ".system.import");
+    var System_resolve = container.get(root + ".system.resolve");
     var System_registerDynamic = container.get(root + ".system.registerDynamic");
+
     return Promise.all(
         [
             "/util/loader.js",
@@ -30,111 +32,118 @@ module.exports = function(container)
     ).then(
         function(modules)
         {
+            return (
+                function(
+                    loader,
+                    walkPath,
+                    createResolveIdentifier,
+                    traverse,
+                    createResolver,
+                    splitIdentifier,
+                    findIdentifier,
+                    weblikeJavascriptlessImport,
+                    importer,
+                    callabled,
+                    filtered
+                )
+                {
+                    splitIdentifier = splitIdentifier(identifierSplitter);
+                    findIdentifier = findIdentifier(servicePrefix);
+                    weblikeJavascriptlessImport = weblikeJavascriptlessImport(System_import);
 
-            var loader = modules[0];
-            var walkPath = modules[1];
-            var createResolveIdentifier = modules[2];
-            var traverse = modules[3];
-            var createResolver = modules[4];
-            var splitIdentifier = modules[5](identifierSplitter);
-            var findIdentifier = modules[6](servicePrefix);
-            var weblikeJavascriptlessImport = modules[7](System_import);
+                    var loadAndEval = loader(
+                        weblikeJavascriptlessImport,
+                        System_resolve,
+                        System_registerDynamic,
+                        walkPath,
+                        splitIdentifier,
+                        findIdentifier
+                    );
+                    var resolveIdentifier = createResolveIdentifier(
+                        walkPath,
+                        servicePrefix,
+                        tagPrefix,
+                        splitIdentifier
+                    );
+                    var resolver = createResolver(resolveIdentifier, traverse);
+                    var resolveArguments = resolver("arguments");
 
-            var importer = modules[8];
-            var callabled = modules[9];
-            var filtered = modules[10];
+                    var importable = importer(weblikeJavascriptlessImport);
+                    var callable = callabled(loadAndEval, resolveArguments);
+                    var filterable = filtered(loadAndEval, resolveArguments);
 
+                    container.set(
+                        root + ".loadAndEval",
+                        function()
+                        {
+                            return loadAndEval;
+                        }
+                    );
+                    container.set(
+                        root + ".require",
+                        function()
+                        {
+                            return System_import;
+                        }
+                    );
+                    container.set(
+                        root + ".walkPath",
+                        function()
+                        {
+                            return walkPath;
+                        }
+                    );
+                    container.set(
+                        root + ".resolveIdentifier",
+                        function()
+                        {
+                            return resolveIdentifier
+                        }
+                    );
+                    container.set(
+                        root + ".resolver",
+                        function()
+                        {
+                            return resolver;
+                        }
+                    );
+                    container.set(
+                        root + ".traverse",
+                        function()
+                        {
+                            return traverse;
+                        }
+                    );
+                    container.set(
+                        root + ".resolve.arguments",
+                        function()
+                        {
+                            return resolveArguments;
+                        }
+                    );
+                    container.set(
+                        root + ".filter.callable",
+                        function()
+                        {
+                            return callable;
+                        }
+                    );
 
-            var loadAndEval = loader(
-                weblikeJavascriptlessImport,
-                System_registerDynamic,
-                walkPath,
-                splitIdentifier,
-                findIdentifier
-            );
-            var resolveIdentifier = createResolveIdentifier(
-                walkPath,
-                servicePrefix,
-                tagPrefix,
-                splitIdentifier
-            );
-            var resolver = createResolver(resolveIdentifier, traverse);
-            var resolveArguments = resolver("arguments");
-
-            var importable = importer(weblikeJavascriptlessImport);
-            var callable = callabled(loadAndEval, resolveArguments);
-            var filterable = filtered(loadAndEval, resolveArguments);
-
-            container.set(
-                root + ".loadAndEval",
-                function()
-                {
-                    return loadAndEval;
-                }
-            );
-            container.set(
-                root + ".require",
-                function()
-                {
-                    return System_import;
-                }
-            );
-            container.set(
-                root + ".walkPath",
-                function()
-                {
-                    return walkPath;
-                }
-            );
-            container.set(
-                root + ".resolveIdentifier",
-                function()
-                {
-                    return resolveIdentifier
-                }
-            );
-            container.set(
-                root + ".resolver",
-                function()
-                {
-                    return resolver;
-                }
-            );
-            container.set(
-                root + ".traverse",
-                function()
-                {
-                    return traverse;
-                }
-            );
-            container.set(
-                root + ".resolve.arguments",
-                function()
-                {
-                    return resolveArguments;
-                }
-            );
-            container.set(
-                root + ".filter.callable",
-                function()
-                {
-                    return callable;
-                }
-            );
-            
-            return function(container, definition, id, definitions)
-            {
-                var args = arguments;
-                return importable.apply(null, arguments).then(
-                    function(defs)
+                    return function(builder, definition, id, definitions)
                     {
-                        definitions = defs || definitions;
-                        callable(container, definitions[id], id, definitions);
-                        filterable(container, definitions[id], id, definitions);
-                        return definitions;
+                        var args = arguments;
+                        return importable.apply(null, arguments).then(
+                            function(defs)
+                            {
+                                definitions = defs || definitions;
+                                callable(builder, definitions[id], id, definitions);
+                                filterable(builder, definitions[id], id, definitions);
+                                return definitions;
+                            }
+                        );
                     }
-                );
-            }
+                }
+            ).apply(null, modules);
         }
     );
 }

@@ -25,6 +25,17 @@ describe(
 
         }
         it(
+            "doesn't mess with jsx",
+            function()
+            {
+                testFixtures(
+                    {
+                        "/something/index.jsx": "/something/index.jsx"
+                    } 
+                );
+            }
+        );
+        it(
             "adds index.js to a folder (something/)",
             function()
             {

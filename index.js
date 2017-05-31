@@ -1,14 +1,12 @@
-module.exports = function(promisedRequire, register, config, containerlike)
+module.exports = function(promisedRequire, resolve, register, config, containerlike)
 {
     var name = __dirname;
-    // this should be in test
     var id = "willow.";
     config = name + "/conf/javascript.js";
     if(promisedRequire == null) {
         //probably testing
         var $require = require;
         var promised = $require("./util/promised");
-        // TODO: This can go for now?
         promisedRequire = promised(
             function(path)
             {
@@ -35,28 +33,33 @@ module.exports = function(promisedRequire, register, config, containerlike)
         function(modules)
         {
             var container = containerlike == null ? new modules[3]() : containerlike;
-            var builder = new modules[0](
-                container,
-                promisedRequire // for importing
-            );
-            builder.set(
+            container.set(
                 id + "system.import",
                 function()
                 {
                     return promisedRequire;
-                },
-                [
-                    "dom.system.import"
-                ]
+                }
             );
-            builder.set(
+            container.set(
+                id + "system.resolve",
+                function()
+                {
+                    return resolve;
+                }
+            );
+            container.set(
+
                 id + "system.registerDynamic",
                 function()
                 {
                     return register;
                 }
             );
-            return modules[1](builder).then(
+            var builder = new modules[0](
+                container,
+                promisedRequire // for importing
+            );
+            return modules[1](container).then(
                 function(filters)
                 {
                     return builder.use(

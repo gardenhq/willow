@@ -21,22 +21,20 @@ describe(
             }
         );
         context(
-            ">",
+            "with plain arrays",
             function()
             {
-
+                const arr = [
+                    1, 2, 3
+                ];
                 const config = {
-                    "iterator.service": {
-                        "iterator": "@iterator.function",
+                    "iterator.service.array": {
+                        "iterator": "@iterator.function.array",
                         "arguments": [
-                            [
-                                1,
-                                2,
-                                3
-                            ]
+                            arr     
                         ]
                     },
-                    "iterator.function": {
+                    "iterator.function.array": {
                         "service": function()
                         {
                             return function(value, key)
@@ -47,16 +45,70 @@ describe(
                     }
                 };
                 it(
-                    "iterates",
+                    "iterates arrays",
                     function()
                     {
                         return load.then(
-                            function(container)
+                            function(builder)
                             {
-                                return container.build(config).get("iterator.service").then(
+                                return builder.build(config).get("iterator.service.array").then(
                                     function(service)
                                     {
-                                        expect(service).to.deep.equal([1, 2, 3])
+                                        expect(service).to.deep.equal(arr);
+                                    }
+                                );
+                            }
+                        );
+                    }
+                );
+            }
+        );
+        context(
+            "with objects and keys",
+            function()
+            {
+                const obj = {name: "hi"};
+                const config = {
+                    "tagged": {
+                        "service": function()
+                        {
+                            return obj
+                        },
+                        "tags": [
+                            {
+                                name: "tag.name",
+                                key: "key"
+                            }
+                        ]
+                    },
+                    "iterator.service.object": {
+                        "iterator": "@iterator.function.object",
+                        "arguments": [
+                             "#tag.name"
+                        ]
+                    },
+                    "iterator.function.object": {
+                        "service": function()
+                        {
+                            return function(value, key)
+                            {
+                                expect(key).to.equal("key");
+                                return value;
+                            }
+                        }
+                    }
+                };
+                it(
+                    "iterates objects",
+                    function()
+                    {
+                        return load.then(
+                            function(builder)
+                            {
+                                return builder.build(config).get("iterator.service.object").then(
+                                    function(service)
+                                    {
+                                        expect(service).to.deep.equal({key: obj})
                                     }
                                 );
 
