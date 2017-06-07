@@ -165,7 +165,7 @@ Object.assign(
                             return prev;
                         },
                         i
-                    )
+                    );
                     services[key] = service;
                 },
                 this

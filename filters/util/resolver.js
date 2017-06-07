@@ -8,7 +8,7 @@ module.exports = function(resolveIdentifier, traverse)
             if(definition[key] == null) {
                 return Promise.resolve();
             }
-            const promises = [];
+            var promises = [];
             traverse(
                 definition[key],
                 function(item, i, obj)
