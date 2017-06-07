@@ -2,7 +2,7 @@ module.exports = function(promisedRequire, resolve, register, config, containerl
 {
     var name = __dirname;
     var id = "willow.";
-    config = name + "/conf/javascript.js";
+    config = name + "/conf/javascript.js"; // js
     if(promisedRequire == null) {
         //probably testing
         var $require = require;
@@ -16,7 +16,7 @@ module.exports = function(promisedRequire, resolve, register, config, containerl
     }
     var modules = [
         "Builder.js",
-        "filters/index.js",
+        "filters/index.js", // js
         "conf/index.js"
     ];
     if(containerlike == null) {
@@ -33,6 +33,7 @@ module.exports = function(promisedRequire, resolve, register, config, containerl
         function(modules)
         {
             var container = containerlike == null ? new modules[3]() : containerlike;
+            // js 
             container.set(
                 id + "system.import",
                 function()
@@ -48,13 +49,13 @@ module.exports = function(promisedRequire, resolve, register, config, containerl
                 }
             );
             container.set(
-
                 id + "system.registerDynamic",
                 function()
                 {
                     return register;
                 }
             );
+            // js
             var builder = new modules[0](
                 container,
                 promisedRequire // for importing
@@ -62,15 +63,19 @@ module.exports = function(promisedRequire, resolve, register, config, containerl
             return modules[1](container).then(
                 function(filters)
                 {
-                    return builder.use(
+                    var container = builder.use(
                         filters
-                    ).set(
+                    ).getContainer();
+                    // js
+                    container.set(
                         id + "resolve.resolve",
                         function()
                         {
                             return builder.get(id + "resolver")("resolve");
                         }
                     );
+                    // js
+                    return builder;
                 }
             ).then(
                 function(builder)
