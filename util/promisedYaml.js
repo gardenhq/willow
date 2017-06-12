@@ -1,16 +1,28 @@
-module.exports = function(createPromised, yaml, read)
+module.exports = function(createPromised, toYaml, read)
 {
     const yamlExtension = ".yaml";
     const ymlExtension = ".yml";
+    // TODO: this is no longer yaml specific need to split out
+    const htmlExtension = ".html";
+    const isYaml = function(path)
+    {
+        return (path.indexOf(yamlExtension) === Math.max(0, path.length - yamlExtension.length))
+        || (path.indexOf(ymlExtension) === Math.max(0, path.length - ymlExtension.length))
+    }
+    const isHtml = function(path)
+    {
+        return (path.indexOf(htmlExtension) === Math.max(0, path.length - htmlExtension.length));
+    }
     read = read || require("fs").readFile;
     return function(require)
     {
         const promisedRequire = createPromised(require);
         return function(path)
         {
+            const yaml = isYaml(path);
+            const html = isHtml(path);
             if(
-                (path.indexOf(yamlExtension) === Math.max(0, path.length - yamlExtension.length))
-                || (path.indexOf(ymlExtension) === Math.max(0, path.length - ymlExtension.length))
+                yaml || html
             ) {
                 return new Promise(
                     function(resolve, reject)
@@ -22,7 +34,7 @@ module.exports = function(createPromised, yaml, read)
                                 if(err) {
                                     reject(err);
                                 }
-                                resolve(yaml(path, str));
+                                resolve(yaml ? toYaml(path, str) : str.toString());
                             }
                         )
 
