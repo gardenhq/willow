@@ -108,6 +108,10 @@ module.exports = function(require, resolvePath, register, walkPath, splitIdentif
                                 if(identifier.path != null) {
                                     object = module;
                                     module = walkPath(identifier.path, module);
+                                } else if(typeof module.__esModule !== "undefined" && module.__esModule === true &&
+                                    typeof module.default !== "undefined"
+                                ) {
+                                    module = module.default;
                                 }
                                 return cb(resolve, reject, module, object, builder, definition);
                             }

@@ -163,6 +163,11 @@ Object.assign(
         _load: function(services)
         {
             //callable?
+            if(typeof services.__esModule !== "undefined" && services.__esModule === true
+                && typeof services.default !== "undefined"
+            ) {
+                services = services.default;
+            }
             if(typeof services === "function") {
                 services = services(this);
             }

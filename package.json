@@ -1,6 +1,6 @@
 {
   "name": "@gardenhq/willow",
-  "version": "6.1.0",
+  "version": "6.2.0",
   "description": "A flexible javascript dependency injection container builder.",
   "author": {
     "name": "GardenHQ",

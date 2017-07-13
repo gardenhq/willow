@@ -26,6 +26,11 @@ module.exports = function($require, key)
                     var promises = imports.map(
                         function(config)
                         {
+                            if(typeof config.__esModule !== "undefined" && config.__esModule === true
+                                && typeof config.default !== "undefined"
+                            ) {
+                                config = config.default;
+                            }
                             // is callable?
                             if(typeof config === "function") {
                                 config = config(container);
